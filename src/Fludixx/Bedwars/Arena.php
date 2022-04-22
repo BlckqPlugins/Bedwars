@@ -11,10 +11,10 @@ declare(strict_types=1);
 namespace Fludixx\Bedwars;
 
 use Fludixx\Bedwars\utils\Utils;
-use pocketmine\level\Level;
-use pocketmine\level\sound\GhastShootSound;
+use pocketmine\world\sound\GhastShootSound;
 use pocketmine\math\Vector3;
-use pocketmine\Player;
+use pocketmine\player\Player;
+use pocketmine\world\World;
 
 /**
  * Class Arena
@@ -32,7 +32,7 @@ class Arena {
 	private $playersProTeam;
 	/** @var int  */
 	private $teams;
-	/** @var Level  */
+	/** @var World  */
 	private $level;
 	/** @var int */
 	private $countdown;
@@ -51,10 +51,10 @@ class Arena {
 	 * @param string $name
 	 * @param int    $playersProTeam
 	 * @param int    $teams
-	 * @param Level  $level
+	 * @param World  $level
 	 * @param array  $spawns
 	 */
-	public function __construct(string $name, int $playersProTeam, int $teams, Level $level, array $spawns)
+	public function __construct(string $name, int $playersProTeam, int $teams, World $level, array $spawns)
 	{
 		$this->name = $name;
 		$this->playersProTeam = $playersProTeam;
@@ -134,21 +134,21 @@ class Arena {
 	}
 
 	/**
-	 * @return Level
+	 * @return World
 	 */
-	public function getLevel() : Level
+	public function getLevel() : World
 	{
 		return $this->level;
 	}
 
 	public function reset() {
 		foreach ($this->getPlayers() as $player) {
-			Bedwars::$players[$player->getName()]->saveTeleport(Bedwars::getInstance()->getServer()->getDefaultLevel()->getSafeSpawn());
+			Bedwars::$players[$player->getName()]->saveTeleport(Bedwars::getInstance()->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 		}
 		// $this->level->unload();
-		Bedwars::getInstance()->getServer()->unloadLevel($this->level);
-		Bedwars::getInstance()->getServer()->loadLevel($this->name);
-		$this->level = Bedwars::getInstance()->getServer()->getLevelByName($this->name);
+		Bedwars::getInstance()->getServer()->getWorldManager()->unloadWorld($this->level);
+		Bedwars::getInstance()->getServer()->getWorldManager()->loadWorld($this->name, true);
+		$this->level = Bedwars::getInstance()->getServer()->getWorldManager()->getWorldByName($this->name);
 		$this->countdown = 60;
 		$this->state = Arena::STATE_OPEN;
 		foreach ($this->spawns as $id => $spawn) {
@@ -176,7 +176,7 @@ class Arena {
 	public function destroyBed(int $id) {
 		$this->beds[$id] = FALSE;
 		$this->broadcast("The Bed of Team ".Utils::ColorInt2Color(Utils::teamIntToColorInt($id))." was destroyed!");
-		$this->level->addSound(new GhastShootSound($this->spawns[$id]));
+		$this->level->addSound($this->spawns[$id], new GhastShootSound());
 	}
 
 	/**

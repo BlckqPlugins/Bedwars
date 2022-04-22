@@ -10,22 +10,38 @@ namespace Fludixx\Bedwars\event;
 
 use Fludixx\Bedwars\Bedwars;
 use Fludixx\Bedwars\utils\Utils;
+use muqsit\invmenu\transaction\DeterministicInvMenuTransaction;
+use pocketmine\inventory\Inventory;
 use pocketmine\item\Item;
 use pocketmine\network\mcpe\protocol\ContainerClosePacket;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class ChestListener
 {
 
-	public function onSelect(Player $player, Item $itemClickedOn, Item $itemClickedWith): bool {
+    protected $bedwars;
+    protected $inv;
+    protected $player;
+
+    public function __construct(Bedwars $main, Inventory $inv, Player $player)
+    {
+        $this->bedwars = $main;
+        $this->inv = $inv;
+        $this->player = $player;
+    }
+
+    public function onTransaction(DeterministicInvMenuTransaction $transaction){
+        $player = $this->player;
+        $itemClickedOn = $transaction->getItemClicked();
+
 		if($itemClickedOn->getId() == 35) {
 			$team = Utils::ColorIntToTeamInt($itemClickedOn->getDamage());
 			$teamname = Utils::ColorInt2Color($itemClickedOn->getDamage());
-			$arena = Bedwars::$arenas[$player->getLevel()->getFolderName()];
+			$arena = Bedwars::$arenas[$player->getWorld()->getFolderName()];
 			$maxTeamMembers = $arena->getPlayersProTeam();
 			$playersInTeam = 0;
 			$playersInOtherTeams = 0;
-			foreach($player->getLevel()->getPlayers() as $p) {
+			foreach($player->getWorld()->getPlayers() as $p) {
 				$pteam = Bedwars::$players[$p->getName()]->getTeam();
 				if($pteam == $team) {
 					$playersInTeam++;
@@ -51,11 +67,8 @@ class ChestListener
 			if($join) {
 				Bedwars::$players[$player->getName()]->setTeam($team);
 			}
-            $packet = new ContainerClosePacket();
-            $packet->windowId = 0;
-            $player->dataPacket($packet);
+            $player->removeCurrentWindow();
         }
-		return TRUE;
 	}
 
 }

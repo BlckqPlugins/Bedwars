@@ -5,7 +5,7 @@ namespace Fludixx\Bedwars\ranking;
 
 
 use Fludixx\Bedwars\Bedwars;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\utils\Config;
 
 class JsonStats implements StatsInterface
@@ -46,7 +46,7 @@ class JsonStats implements StatsInterface
 
     /**
      * @param Player $player
-     * @return mixed
+     * @return void
      */
     public function register(Player $player)
     {

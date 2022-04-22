@@ -69,7 +69,7 @@ class Bedwars extends PluginBase {
 	    'stats' => 'json'
     ];
 
-	public function onEnable()
+	public function onEnable(): void
 	{
         self::$instance = $this;
 		@mkdir($this->getDataFolder());
@@ -93,8 +93,6 @@ class Bedwars extends PluginBase {
             default:
                 self::$statsSystem = new JsonStats();
         }
-		if(!$this->getServer()->loadLevel("transfare"))
-			$this->getServer()->generateLevel("transfare");
 		self::$provider = new JsonProvider();
 		$this->registerCommands();
 		$this->registerEvents();
@@ -127,8 +125,8 @@ class Bedwars extends PluginBase {
 
 	private function loadArenas() {
 		foreach (self::$provider->getArenas() as $name => $data) {
-			$this->getServer()->loadLevel($data['mapname']);
-			$level = $this->getServer()->getLevelByName($data['mapname']);
+			$this->getServer()->getWorldManager()->loadWorld($data['mapname'], true);
+			$level = $this->getServer()->getWorldManager()->getWorldByName($data['mapname']);
             self::$arenas[$name] = new Arena($data['mapname'], (int)$data['ppt'], (int)$data['teams'], $level, $data['spawns']);
 		}
 	}
@@ -137,7 +135,7 @@ class Bedwars extends PluginBase {
 	    // TODO: Rewrite stats system
     }
 
-    public function onDisable()
+    public function onDisable(): void
     {
         self::saveStats();
     }

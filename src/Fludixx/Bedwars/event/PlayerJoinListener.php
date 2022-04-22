@@ -15,11 +15,12 @@ use Fludixx\Bedwars\BWPlayer;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 
 class PlayerJoinListener implements Listener {
 
 	public function onPlayerJoin(PlayerLoginEvent $event) {
-		$event->getPlayer()->teleport(Bedwars::getInstance()->getServer()->getDefaultLevel()->getSafeSpawn());
+		$event->getPlayer()->teleport(Bedwars::getInstance()->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 		Bedwars::$players[$event->getPlayer()->getName()] = new BWPlayer($event->getPlayer());
 		if(!Bedwars::$statsSystem->isRegistered($event->getPlayer())) {
 		    Bedwars::$statsSystem->register($event->getPlayer());
@@ -29,7 +30,7 @@ class PlayerJoinListener implements Listener {
             Bedwars::$statsSystem->set($event->getPlayer(), ':requests', TRUE);
         }
 		$event->getPlayer()->getInventory()->setContents([
-            0 => Item::get(Item::IRON_SWORD)
+            0 => VanillaItems::IRON_SWORD(),
         ]);
 	}
 

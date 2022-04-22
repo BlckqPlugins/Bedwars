@@ -20,7 +20,7 @@ class ChatListener implements Listener {
     public function onChat(PlayerChatEvent $event) {
         $player = Bedwars::$players[$event->getPlayer()->getName()];
         if($player->getPos() !== 0) {
-            $arena = Bedwars::$arenas[$event->getPlayer()->getLevel()->getFolderName()];
+            $arena = Bedwars::$arenas[$event->getPlayer()->getWorld()->getFolderName()];
             $messageArray = explode(" ", $event->getMessage());
             if(in_array("@all", $messageArray) or $adda = in_array("@a", $messageArray)) {
                 if($adda) {
@@ -39,7 +39,7 @@ class ChatListener implements Listener {
                     }
                 }
             }
-            $event->setCancelled(TRUE);
+            $event->cancel();
         }
     }
 

@@ -13,7 +13,7 @@ namespace Fludixx\Bedwars\command;
 use Fludixx\Bedwars\Bedwars;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class SignCommand extends Command {
 

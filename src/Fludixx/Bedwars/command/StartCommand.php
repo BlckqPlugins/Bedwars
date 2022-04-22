@@ -13,7 +13,7 @@ namespace Fludixx\Bedwars\command;
 use Fludixx\Bedwars\Bedwars;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class StartCommand extends Command {
 
@@ -25,7 +25,7 @@ class StartCommand extends Command {
 	public function execute(CommandSender $sender, string $commandLabel, array $args)
 	{
 		if($sender->hasPermission("bw.start") and $sender instanceof Player) {
-			Bedwars::$arenas[$sender->getLevel()->getFolderName()]->setCountdown(10);
+			Bedwars::$arenas[$sender->getWorld()->getFolderName()]->setCountdown(10);
 		}
 	}
 

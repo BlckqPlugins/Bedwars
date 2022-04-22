@@ -16,7 +16,9 @@ use Fludixx\Bedwars\utils\Utils;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\item\ItemFactory;
+use pocketmine\player\Player;
+use pocketmine\Server;
 
 class bedwarsCommand extends Command {
 
@@ -32,7 +34,7 @@ class bedwarsCommand extends Command {
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)
 	{
-		if(($sender->hasPermission("bw.admin") or $sender->isOp()) and $sender instanceof Player) {
+		if(($sender->hasPermission("bw.admin") or Server::getInstance()->isOp($sender->getName())) and $sender instanceof Player) {
 			$player = Bedwars::$players[$sender->getName()];
 			if(!isset($args[0]) or !isset($args[1]) or $args[0] == "help") {
 				$sender->sendMessage(Bedwars::PREFIX."/bw [ARENANAME] [MODE 8*1...]");
@@ -46,8 +48,8 @@ class bedwarsCommand extends Command {
 					$player->sendMsg("You can't add more than 8 Teams");
 					return FALSE;
 				} else {
-					if($this->bedwars->getServer()->loadLevel($levelname)) {
-						$level = $this->bedwars->getServer()->getLevelByName($levelname);
+					if($this->bedwars->getServer()->getWorldManager()->loadWorld($levelname, true)) {
+						$level = $this->bedwars->getServer()->getWorldManager()->getWorldByName($levelname);
 						$arenadata = [
 							'teams' => $mode[0],
 							'ppt' => $mode[2],
@@ -57,13 +59,13 @@ class bedwarsCommand extends Command {
 						];
 						Bedwars::$provider->addArena($levelname, $arenadata);
 						$player->setPos(-1);
-						$sender->getInventory()->setItem(0, Item::get(35, Utils::teamIntToColorInt(1)));
+						$sender->getInventory()->setItem(0, ItemFactory::getInstance()->get(35, Utils::teamIntToColorInt(1)));
 						$sender->teleport($level->getSafeSpawn());
 						$player->sendMsg("Please Place the Blocks to set the Team spawns");
 						$player->sendMsg("verwende /leave um zum Spawn zu kommen");
-						Bedwars::$arenas[$player->getPlayer()->getLevel()->getFolderName()] =
-							new Arena($player->getPlayer()->getLevel()->getFolderName(),
-								(int)$mode[2], (int)$mode[0], $sender->getLevel(), []);
+						Bedwars::$arenas[$player->getPlayer()->getWorld()->getFolderName()] =
+							new Arena($player->getPlayer()->getWorld()->getFolderName(),
+								(int)$mode[2], (int)$mode[0], $sender->getWorld(), []);
 						return TRUE;
 					} else {
 						$player->sendMsg("Error: 1 Argument must be a Levelname!");

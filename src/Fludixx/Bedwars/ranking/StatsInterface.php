@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace Fludixx\Bedwars\ranking;
 
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 interface StatsInterface {
 
