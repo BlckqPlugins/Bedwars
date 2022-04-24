@@ -12,21 +12,20 @@ namespace Fludixx\Bedwars\task;
 
 use Fludixx\Bedwars\Arena;
 use Fludixx\Bedwars\Bedwars;
-use Fludixx\Bedwars\event\TakeItemListener;
 use Fludixx\Bedwars\utils\Scoreboard;
 use Fludixx\Bedwars\utils\Utils;
+use pocketmine\block\tile\Sign;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\scheduler\Task;
-use pocketmine\tile\Sign;
 
 class BWTask extends Task {
 
     /**
-     * @param int $currentTick
      * This function manages all the Servers, without this task running no games will start & end
      */
-	public function onRun(int $currentTick)
+	public function onRun(): void
 	{
 		foreach (Bedwars::$arenas as $name => $arena) {
 			if((count($arena->getPlayers()) >= (int)$arena->getPlayersProTeam()+1) and $arena->getCountdown() !== 0) {
@@ -50,7 +49,7 @@ class BWTask extends Task {
 				    $result = $gold >= 0 ? "§aWith gold" : "§cWithout gold!";
 				    $arena->broadcast("Goldvoting has ended");
 				    $arena->broadcast("Result: $result");
-				    $arena->setHasGold($gold >= 0 ? TRUE : FALSE);
+				    $arena->setHasGold($gold >= 0);
                 }
 				if($arena->getCountdown() === 0) {
 					$arena->setState(Arena::STATE_INUSE);
@@ -103,14 +102,14 @@ class BWTask extends Task {
 					foreach ($arena->getPlayers() as $player) {
 						$mplayer = Bedwars::$players[$player->getName()];
                         if(!$mplayer->isSpectator()) {
-                            $mplayer->getPlayer()->addTitle("§aYou won!");
+                            $mplayer->getPlayer()->sendTitle("§aYou won!");
                             $mplayer->setPos(0);
                             $player->getInventory()->setContents([
-                                0 => Item::get(Item::IRON_SWORD)
+                                0 => VanillaItems::IRON_SWORD(),
                             ]);
                             $player->getArmorInventory()->clearAll();
                             $player->setDisplayName($player->getName());
-                            $mplayer->saveTeleport(Bedwars::getInstance()->getServer()->getDefaultLevel()->getSafeSpawn());
+                            $mplayer->saveTeleport(Bedwars::getInstance()->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
                         } else {
                             Bedwars::getInstance()->getServer()->dispatchCommand($mplayer->getPlayer(), "leave");
                         }
@@ -118,18 +117,20 @@ class BWTask extends Task {
                     $arena->reset();
 				}
 
-				foreach ($arena->getLevel()->getTiles() as $tile) {
-					if($tile instanceof Sign) {
-						$pos = $tile->asVector3();
-                        if(strtolower($tile->getLine(0))[0] === 'b') {
-                            $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), Item::get(Item::BRICK), new Vector3(0, 0, 0));
-                        } else if(strtolower($tile->getLine(0))[0] === 'i' and time()%30 === 0) {
-                            $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), Item::get(Item::IRON_INGOT), new Vector3(0, 0, 0));
-                        } else if(strtolower($tile->getLine(0))[0] === 'g' and $arena->getTimer()%60 === 0) {
-                            $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), Item::get(Item::GOLD_INGOT), new Vector3(0, 0, 0));
+				foreach ($arena->getLevel()->getLoadedChunks() as $chunk) {
+                    foreach ($chunk->getTiles() as $tile) {
+                        if ($tile instanceof Sign) {
+                            $pos = $tile->getPosition()->asVector3();
+                            if (strtolower($tile->getText()->getLine(0)) === 'b') {
+                                $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), VanillaItems::BRICK(), new Vector3(0, 0, 0));
+                            } else if (strtolower($tile->getText()->getLine(0)) === 'i' and time() % 30 === 0) {
+                                $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), VanillaItems::IRON_INGOT(), new Vector3(0, 0, 0));
+                            } else if (strtolower($tile->getText()->getLine(0)) === 'g' and $arena->getTimer() % 60 === 0) {
+                                $arena->getLevel()->dropItem($pos->add(0.5, 2, 0.5), VanillaItems::GOLD_INGOT(), new Vector3(0, 0, 0));
+                            }
                         }
-					}
-				}
+                    }
+                }
 
 			} else {
 				$sb = new Scoreboard($name);

@@ -16,8 +16,8 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerExhaustEvent;
-use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\item\ItemIds;
+use pocketmine\player\Player;
 
 class EntityDamageListener implements Listener {
 
@@ -28,8 +28,8 @@ class EntityDamageListener implements Listener {
 			if(Bedwars::$players[$player->getName()]->getPos() > 0 and Bedwars::$players[$player->getName()]->getPos() !== Bedwars::$players[$damager->getName()]->getPos()) {
 				Bedwars::$players[$player->getName()]->setKnocker($damager->getName());
 				if ($player->getHealth() <= $event->getFinalDamage()) {
-					$event->setCancelled(TRUE);
-					$levelname = $player->getLevel()->getFolderName();
+					$event->cancel();
+					$levelname = $player->getWorld()->getFolderName();
 					$pos = Bedwars::$arenas[$levelname]->getSpawns()[Bedwars::$players[$player->getName()]->getPos()];
 					$player->teleport($pos);
 					Bedwars::$arenas[$levelname]->broadcast("§e" . Bedwars::$players[$player->getName()]->getName() . "§f was killed by §e" .
@@ -40,8 +40,8 @@ class EntityDamageListener implements Listener {
 				}
 				return;
 			}
-			$event->setCancelled(TRUE);
-			if($damager->getInventory()->getItemInHand()->getId() === Item::IRON_SWORD) {
+			$event->cancel();
+			if($damager->getInventory()->getItemInHand()->getId() === ItemIds::IRON_SWORD) {
 			    $mdamager = Bedwars::$players[$damager->getName()];
 			    $mdamager->setVaule('hit', $player->getName());
 			    $mplayer = Bedwars::$players[$player->getName()];
@@ -76,13 +76,13 @@ class EntityDamageListener implements Listener {
 		$player = $event->getEntity();
 		if($player instanceof Player) {
             if(Bedwars::$players[$player->getName()]->getPos() <= 0 and $event->getCause() !== EntityDamageEvent::CAUSE_VOID) {
-                $event->setCancelled(TRUE);
+                $event->cancel();
                 return;
             }
 			if ($event->getCause() === EntityDamageEvent::CAUSE_FALL) {
 				if($player->getHealth() <= $event->getFinalDamage()) {
-					$event->setCancelled(TRUE);
-					$levelname = $player->getLevel()->getFolderName();
+					$event->cancel();
+					$levelname = $player->getWorld()->getFolderName();
                     if(is_string(Bedwars::$players[$player->getName()]->getKnocker())) {
                         Bedwars::$arenas[$levelname]->broadcast("§e" . Bedwars::$players[$player->getName()]->getName() . "§f was killed by §e" .
                             Bedwars::$players[$player->getName()]->getKnocker());
@@ -98,12 +98,12 @@ class EntityDamageListener implements Listener {
                     Bedwars::$players[$player->getName()]->die();
 					return;
 				}
-				$event->setCancelled(FALSE);
+				$event->uncancel();
 			}
 			else if($event->getCause() === EntityDamageEvent::CAUSE_VOID) {
-				$event->setCancelled(TRUE);
+				$event->cancel();
 				if(Bedwars::$players[$player->getName()]->getPos() > 0) {
-					$levelname = $player->getLevel()->getFolderName();
+					$levelname = $player->getWorld()->getFolderName();
 					$pos = Bedwars::$arenas[$levelname]->getSpawns()[Bedwars::$players[$player->getName()]->getPos()];
 					$player->teleport($pos);
                     if(is_string(Bedwars::$players[$player->getName()]->getKnocker())) {
@@ -114,14 +114,14 @@ class EntityDamageListener implements Listener {
                     }
 					Bedwars::$players[$player->getName()]->die();
 				} else {
-					$player->teleport($player->getLevel()->getSafeSpawn());
+					$player->teleport($player->getWorld()->getSafeSpawn());
 				}
 			}
 		}
 	}
 
 	public function onHunger(PlayerExhaustEvent $event) {
-	    $event->getPlayer()->setFood(20);
+	    $event->getPlayer()->getHungerManager()->setFood(20);
     }
 
 }

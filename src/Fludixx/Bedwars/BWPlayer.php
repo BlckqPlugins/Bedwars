@@ -10,17 +10,18 @@ declare(strict_types=1);
 
 namespace Fludixx\Bedwars;
 
-use Fludixx\Bedwars\task\removeLoadingScreen;
 use Fludixx\Bedwars\utils\Scoreboard;
+use pocketmine\entity\Location;
 use pocketmine\item\Item;
-use pocketmine\level\Position;
+use pocketmine\item\VanillaItems;
+use pocketmine\world\Position;
 use pocketmine\network\mcpe\protocol\ChangeDimensionPacket;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 /**
  * Class BWPlayer
@@ -160,13 +161,7 @@ class BWPlayer {
 	 * @param Position $position
 	 */
 	public function saveTeleport(Position $position) {
-		$this->player->teleport(Bedwars::getInstance()->getServer()->getLevelByName("transfare")->getSafeSpawn());
-		$pk = new ChangeDimensionPacket();
-		$pk->position = Bedwars::getInstance()->getServer()->getLevelByName("transfare")->getSafeSpawn();
-		$pk->dimension = DimensionIds::NETHER;
-		$pk->respawn = true;
-		$this->player->sendDataPacket($pk);
-		Bedwars::getInstance()->getScheduler()->scheduleDelayedTask(new removeLoadingScreen($this->player, $position), 20);
+        $this->player->teleport(new Location($position->getX(), $position->getY(), $position->getZ(), $position->getWorld(), 0.0, 0.0));
 	}
 
 	public function sendMsg(string $msg) {
@@ -179,14 +174,14 @@ class BWPlayer {
 	public function sendScoreboard(Scoreboard $sb) {
 		$pk = new RemoveObjectivePacket();
 		$pk->objectiveName = $sb->objName;
-		$this->player->sendDataPacket($pk);
+		$this->player->getNetworkSession()->sendDataPacket($pk);
 		$pk = new SetDisplayObjectivePacket();
 		$pk->displaySlot = "sidebar";
 		$pk->objectiveName = $sb->objName;
 		$pk->displayName = $sb->title;
 		$pk->criteriaName = "dummy";
 		$pk->sortOrder = 0;
-		$this->player->sendDataPacket($pk);
+		$this->player->getNetworkSession()->sendDataPacket($pk);
 		foreach ($sb->lines as $num => $line) {
 			if($line === "")
 				$line = str_repeat("\0", $num);
@@ -199,27 +194,27 @@ class BWPlayer {
 			$pk = new SetScorePacket();
 			$pk->type = 0;
 			$pk->entries[$num] = $entry;
-			$this->player->sendDataPacket($pk);
+			$this->player->getNetworkSession()->sendDataPacket($pk);
 		}
 	}
 
 	public function die() {
-		$levelname = $this->player->getLevel()->getFolderName();
+		$levelname = $this->player->getWorld()->getFolderName();
 		if(Bedwars::$arenas[$levelname]->getBeds()[$this->pos]) {
 			$this->player->setHealth(20.0);
-			$this->player->setFood(20.0);
+			$this->player->getHungerManager()->setFood(20.0);
 			$this->player->getInventory()->clearAll();
 			$this->player->getArmorInventory()->clearAll();
 			$pos = Bedwars::$arenas[$levelname]->getSpawns()[Bedwars::$players[$this->player->getName()]->getPos()];
 			$this->player->teleport($pos);
 		} else {
 		    $this->setPos(0);
-		    $this->rmScoreboard($this->player->getLevel()->getFolderName());
+		    $this->rmScoreboard($this->player->getWorld()->getFolderName());
             $this->player->getInventory()->setContents([
-                0 => Item::get(Item::IRON_SWORD)
+                0 => VanillaItems::IRON_SWORD(),
             ]);
 			$this->player->getArmorInventory()->clearAll();
-			$this->saveTeleport(Bedwars::getInstance()->getServer()->getDefaultLevel()->getSafeSpawn());
+			$this->saveTeleport(Bedwars::getInstance()->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 		}
 	}
 
@@ -229,7 +224,7 @@ class BWPlayer {
 	public function rmScoreboard(string $objname) {
 		$pk = new RemoveObjectivePacket();
 		$pk->objectiveName = $objname;
-		$this->player->sendDataPacket($pk);
+		$this->player->getNetworkSession()->sendDataPacket($pk);
 	}
 
     /**
@@ -261,7 +256,7 @@ class BWPlayer {
      * @return mixed
      */
     public function getVaule($key) {
-	    return isset($this->extraData[$key]) ? $this->extraData[$key] : 0;
+	    return $this->extraData[$key] ?? 0;
     }
 
     public function getRandomTeam(Arena $arena): int {

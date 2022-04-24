@@ -50,7 +50,7 @@ class LoadStatsTask extends AsyncTask {
         $this->data = $data;
     }
 
-    public function onRun()
+    public function onRun(): void
     {
         $allStats = [];
         switch ($this->type) {
@@ -70,7 +70,7 @@ class LoadStatsTask extends AsyncTask {
         $this->setResult($allStats);
     }
 
-    public function onCompletion(Server $server)
+    public function onCompletion(): void
     {
         $this->statsSystem->stats = $this->getResult();
         Bedwars::getInstance()->getLogger()->notice("All stats were moved into memory!");

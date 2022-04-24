@@ -14,7 +14,7 @@ use Fludixx\Bedwars\Bedwars;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 class leaveCommand extends Command {
 
