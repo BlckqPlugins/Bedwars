@@ -14,6 +14,7 @@ use Fludixx\Bedwars\Bedwars;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\item\Item;
+use pocketmine\item\VanillaItems;
 use pocketmine\player\Player;
 
 class leaveCommand extends Command {
@@ -23,6 +24,7 @@ class leaveCommand extends Command {
 		parent::__construct("leave",
 			"Teleports you back to the Spawn",
 			"/leave",  ["l"]);
+        $this->setPermission(null);
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)
@@ -30,12 +32,12 @@ class leaveCommand extends Command {
 		if($sender instanceof Player) {
 			$player = Bedwars::$players[$sender->getName()];
 			$player->getPlayer()->setGamemode(0);
-			$player->rmScoreboard($sender->getLevel()->getFolderName());
-			$player->saveTeleport(Bedwars::getInstance()->getServer()->getDefaultLevel()->getSafeSpawn());
+			$player->rmScoreboard($sender->getWorld()->getFolderName());
+			$player->saveTeleport(Bedwars::getInstance()->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
 			$player->setPos(0);
 			$player->setSpectator(FALSE);
             $sender->getInventory()->setContents([
-                0 => Item::get(Item::IRON_SWORD)
+                0 => VanillaItems::IRON_SWORD()
             ]);
 			$player->getPlayer()->getArmorInventory()->clearAll();
 		}

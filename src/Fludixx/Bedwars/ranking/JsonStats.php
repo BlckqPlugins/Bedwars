@@ -26,9 +26,10 @@ class JsonStats implements StatsInterface
      * @param Player $player
      * @param string $key
      * @param        $value
-     * @return mixed
+     * @return void
+     * @throws \JsonException
      */
-    public function set(Player $player, string $key, $value)
+    public function set(Player $player, string $key, $value): void
     {
         $this->config->setNested($player->getName() . ".$key", $value);
         $this->config->save();

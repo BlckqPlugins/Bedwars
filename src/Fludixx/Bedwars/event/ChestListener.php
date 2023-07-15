@@ -12,8 +12,6 @@ use Fludixx\Bedwars\Bedwars;
 use Fludixx\Bedwars\utils\Utils;
 use muqsit\invmenu\transaction\DeterministicInvMenuTransaction;
 use pocketmine\inventory\Inventory;
-use pocketmine\item\Item;
-use pocketmine\network\mcpe\protocol\ContainerClosePacket;
 use pocketmine\player\Player;
 
 class ChestListener

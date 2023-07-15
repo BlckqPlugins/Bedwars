@@ -14,12 +14,14 @@ use Fludixx\Bedwars\Arena;
 use Fludixx\Bedwars\Bedwars;
 use Fludixx\Bedwars\utils\Utils;
 use muqsit\invmenu\InvMenu;
+use pocketmine\block\VanillaBlocks;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\item\VanillaItems;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\ModalFormResponsePacket;
 use pocketmine\block\tile\Sign;
@@ -39,9 +41,9 @@ class InteractListener implements Listener {
                     $mplayer->saveTeleport($arena->getLevel()->getSafeSpawn());
                     $inv = $mplayer->getPlayer()->getInventory();
                     $inv->clearAll();
-                    $inv->setItem(8, ItemFactory::getInstance()->get(ItemIds::CHEST)->setCustomName("§eTeams"));
-                    $inv->setItem(7, ItemFactory::getInstance()->get(ItemIds::SLIME_BALL)->setCustomName("§cLeave"));
-                    $inv->setItem(0, ItemFactory::getInstance()->get(ItemIds::REDSTONE)->setCustomName("§6Goldvote"));
+                    $inv->setItem(8, VanillaBlocks::CHEST()->asItem()->setCustomName("§eTeams"));
+                    $inv->setItem(7, VanillaItems::SLIMEBALL()->setCustomName("§cLeave"));
+                    $inv->setItem(0, VanillaItems::REDSTONE_DUST()->setCustomName("§6Goldvote"));
                     $arena->broadcast("{$mplayer->getName()} joined!");
                     return;
                 }
@@ -50,7 +52,7 @@ class InteractListener implements Listener {
                 if($arena->getState() === Arena::STATE_INUSE) {
                     $mplayer->sendMsg("Teleporting...");
                     $inv = $mplayer->getPlayer()->getInventory();
-                    $inv->setItem(0, ItemFactory::getInstance()->get(ItemIds::SLIME_BALL)->setCustomName("§cLeave"));
+                    $inv->setItem(0, VanillaItems::SLIMEBALL()->setCustomName("§cLeave"));
                     $mplayer->setSpectator();
                     $mplayer->getPlayer()->setGamemode(\pocketmine\player\GameMode::SURVIVAL());
                     $mplayer->saveTeleport($arena->getLevel()->getSafeSpawn());
@@ -78,8 +80,9 @@ class InteractListener implements Listener {
 					foreach ($teams[$team] as $name) {
 						$playerss .= "\n§7 - §f$name";
 					}
-					$minv->addItem(ItemFactory::getInstance()->get(ItemIds::WOOL, Utils::teamIntToColorInt($team), count($teams[$team])+1)->setCustomName
-					(Utils::ColorInt2Color(Utils::teamIntToColorInt($team))."§7 - §f".count($teams[$team]).$playerss));
+                    $item = VanillaBlocks::WOOL()->setColor(Utils::teamIntToColor($team))->asItem();
+                    $item->setCount(($teams[$team]) +1);
+					$minv->addItem($item->setCustomName(Utils::ColorInt2Color(Utils::teamIntToColorInt($team))."§7 - §f".count($teams[$team]).$playerss));
 				}
 				$menu->send($event->getPlayer());
                 $menu->setListener(InvMenu::readonly(\Closure::fromCallable([new ChestListener(Bedwars::getInstance(), $player->getInventory(), $player), "onTransaction"])));

@@ -16,7 +16,7 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerExhaustEvent;
-use pocketmine\item\ItemIds;
+use pocketmine\item\ItemTypeIds;
 use pocketmine\player\Player;
 
 class EntityDamageListener implements Listener {
@@ -41,7 +41,7 @@ class EntityDamageListener implements Listener {
 				return;
 			}
 			$event->cancel();
-			if($damager->getInventory()->getItemInHand()->getId() === ItemIds::IRON_SWORD) {
+			if($damager->getInventory()->getItemInHand()->getTypeId() === ItemTypeIds::IRON_SWORD) {
 			    $mdamager = Bedwars::$players[$damager->getName()];
 			    $mdamager->setVaule('hit', $player->getName());
 			    $mplayer = Bedwars::$players[$player->getName()];

@@ -19,7 +19,7 @@ use pocketmine\world\World;
 /**
  * Class Arena
  * @package Fludixx\Bedwars
- * This Arena class is an Class that contains infos about an Arena, all Arenas should be converted to this class
+ * This Arena class is a Class that contains infos about an Arena, all Arenas should be converted to this class
  */
 class Arena {
 

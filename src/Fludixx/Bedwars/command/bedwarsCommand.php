@@ -30,6 +30,7 @@ class bedwarsCommand extends Command {
 			"Bedwars Command",
 			"/bw [ARENANAME] [MODE 8*1...]", ["bedwars"]);
 		$this->bedwars = Bedwars::getInstance();
+        $this->setPermission("bw.admin");
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)

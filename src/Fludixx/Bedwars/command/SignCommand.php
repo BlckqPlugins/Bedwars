@@ -22,6 +22,7 @@ class SignCommand extends Command {
 		parent::__construct("sign",
 			"/sign [ARENANAME]",
 			"/sign [ARENANAME]", ['addsign']);
+        $this->setPermission("bw.admin");
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)

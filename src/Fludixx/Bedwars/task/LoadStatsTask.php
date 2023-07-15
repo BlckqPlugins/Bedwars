@@ -14,6 +14,7 @@ use Fludixx\Bedwars\Bedwars;
 use Fludixx\Bedwars\ranking\StatsInterface;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
+use pocketmine\thread\NonThreadSafeValue;
 use pocketmine\utils\Config;
 
 class LoadStatsTask extends AsyncTask {
@@ -39,7 +40,7 @@ class LoadStatsTask extends AsyncTask {
      * LoadStatsTask constructor.
      * @param StatsInterface $statsSystem
      * @param int            $type
-     * @param array          $data
+     * @param NonThreadSafeValue          $data
      * StatsSystem is an Instance of an StatsSystem (StatsInterface) so the results can get stored.
      * The results will be saved in $statsSystem->stats as [PlayerIdentifier -> ['key' => value]...]
      */
@@ -47,7 +48,7 @@ class LoadStatsTask extends AsyncTask {
     {
         $this->statsSystem = $statsSystem;
         $this->type = $type;
-        $this->data = $data;
+        $this->data = new NonThreadSafeValue($data);
     }
 
     public function onRun(): void
@@ -62,7 +63,7 @@ class LoadStatsTask extends AsyncTask {
                 }
                 break;
             case self::JSON:
-                $configname = $this->data[0];
+                $configname = $this->data->deserialize()[0];
                 $c = new Config($configname, Config::JSON);
                 $allStats = $c->getAll();
                 break;

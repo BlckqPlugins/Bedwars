@@ -22,6 +22,7 @@ class viewStatsCommand extends Command {
         parent::__construct("stats",
             "Shows your stats",
             "stats", []);
+        $this->setPermission(null);
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args)

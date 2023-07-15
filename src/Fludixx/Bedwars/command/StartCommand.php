@@ -20,6 +20,7 @@ class StartCommand extends Command {
 	public function __construct()
 	{
 		parent::__construct("start", "Set the counter to 10", "/start", []);
+        $this->setPermission("bw.start");
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args)

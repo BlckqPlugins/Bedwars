@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Fludixx\Bedwars\utils;
 
+use pocketmine\block\utils\DyeColor;
 use pocketmine\utils\TextFormat as f;
 
 class Utils {
@@ -25,6 +26,18 @@ class Utils {
 		if ($int == 7) {return 10;}
 		if ($int == 8) {return 0;} else {return -1;}
 	}
+
+    public static function teamIntToColor(int $int): DyeColor
+    {
+        if ($int == 1) {return DyeColor::RED();}
+        if ($int == 2) {return DyeColor::BLUE();}
+        if ($int == 3) {return DyeColor::GREEN();}
+        if ($int == 4) {return DyeColor::YELLOW();}
+        if ($int == 5) {return DyeColor::PINK();}
+        if ($int == 6) {return DyeColor::ORANGE();}
+        if ($int == 7) {return DyeColor::PURPLE();}
+        return DyeColor::WHITE();
+    }
 
 	public static function ColorIntToTeamInt(int $int): int
 	{
@@ -50,7 +63,7 @@ class Utils {
 		if ($int == 0) {return f::WHITE . "White";} else {return "???";}
 	}
 
-	public static function colorIntToPicture(int $int) {#
+	public static function colorIntToPicture(int $int) {
         if($int == 14) {$url = "https://d1u5p3l4wpay3k.cloudfront.net/minecraft_gamepedia/7/70/Red_Wool.png?version=c738bbbc3daae06f5a93837841b26d47";}
         if($int == 11) {$url = "https://d1u5p3l4wpay3k.cloudfront.net/minecraft_gamepedia/c/ce/Blue_Wool.png?version=2a1b4b021e10cad13cd75fa1f3adea7a";}
         if($int == 5) {$url = "https://d1u5p3l4wpay3k.cloudfront.net/minecraft_gamepedia/3/30/Lime_Wool.png?version=12f2e5f265ac507203b9eda28f478cd6";}
